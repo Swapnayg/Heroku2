@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}Month 1 {% endblock %}
+{% block content %}
+<div style="width: 100%;height: 100px;">
+    <div style="width: 30%;float: right;">
+        <label>
+            No. of Strikes
+        </label>
+        <select id="callStrikes" style="width: 60%;margin-left: 3%;height: 33px;">
+            <option>3 Strikes</option>
+            <option selected>5 Strikes</option>
+            <option>7 Strikes</option>
+            <option>9 Strikes</option>
+            <option>11 Strikes</option>
+        </select>
+    </div>
+    <div style="width: 30%;float: right;">
+        <label>
+            Select Month
+        </label>
+        <select id="featMonths" style="width: 60%;margin-left: 3%;height: 33px;">
+        </select>
+    </div>
+</div>
+
+<div id="container_feat_month" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_ro_coi" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_coi_ni" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_av_coi" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+    function readymodefeat(monthName,value)
+    {
+        $.ajax({
+            type:"GET",
+            url: "/post_feat_month",
+            data: {"umonth":monthName},
+            success: function(data) 
+            { 
+                timeslsts = data[0]["times"];
+                datalsts = []
+                $.each(data, function (key, value) {
+                    if(jQuery.inArray(key, middle_array) != -1) {
+				        item = {}
+				        item["name"] = value.strike_point;
+				        item["data"] = value.value;
+				        datalsts.push(item);
+                    }
+                });
+                $('#container_feat_month').highcharts({
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x',
+                        panning: true,
+                        panKey: 'shift'
+                    },
+                    time: {
+                        useUTC: false
+                    },
+                    title: {
+                        text: 'Calls - Rate of Change Open Interests Analysis',
+                        x: -20
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Open Interests in Contracts (Rate)'
+                        },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                    },
+                    tooltip: {
+                        valueSuffix: ' OI',
+                        headerFormat: '<span style="font-size: 10px">' +
+                            'Time: <strong> {point.key:%H:%M}</strong> ' +
+                            '</span><br/>'
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: datalsts,
+                xAxis: {
+                    title: {
+                        text: 'Time'
+                    },
+                    categories: timeslsts,
+                    labels: {
+                        format: '{value:%H:%M}'
+                    }
+                }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_co_notrade",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_coi_ni').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Calls - Rate of Change Change in OI/No. of Trades Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Change in OI/No. of Trades (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: 'Change in OI/No. of Trades',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_oi_chart",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_ro_coi').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Calls - Rate of Change Open Interests Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Open Interests in Contracts (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' OI',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+
+    $.ajax({
+        type:"GET",
+        url: "/post_ltp_coi",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_av_coi').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Calls - Rate of Change LTP / COI Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'LTP / COI (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: 'LTP / COI',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    }
+    $(document).ready(function () {
+        $.ajax({
+            type:"GET",
+            url: "/get_months",
+            data: {},
+            success: function(data) 
+            {
+                $.each(data, function (key, value) {
+                    $("#featMonths").append("<option>"+value+"</option>")
+                });
+            }
+        });
+
+    });
+</script>
+{% endblock %}

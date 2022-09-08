@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+{% block title %}Puts - OI {% endblock %}
+{% block content %}
+<div style="width: 100%;height: 100px;">
+    <div style="width: 30%;float: right;">
+        <label>
+            No. of Strikes
+        </label>
+        <select id="putStrikes" style="width: 60%;margin-left: 3%;height: 33px;">
+            <option>3 Strikes</option>
+            <option selected>5 Strikes</option>
+            <option>7 Strikes</option>
+            <option>9 Strikes</option>
+            <option>11 Strikes</option>
+        </select>
+    </div>
+</div>
+
+<div id="container_P_oi_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_chg_in_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_volume" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_iv" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_ltp" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_notrade" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_oi_notrade" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_ltp_volume" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container_P_volume_nt" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+function readymodeput(value)
+{
+    _arraylist = [0,1,2,3,4,5,6,7,8,9,10];
+    const theMiddle = Math.floor(_arraylist.length / 2);
+    const value1 = _arraylist[theMiddle];
+    plus_val = 0;
+    minus_val = 0;
+    middle_array = []
+    for(i = value; i > 0; i--)
+    {
+        if (i % 2 === 0)
+        {
+            plus_val =plus_val +1;
+            middle_array.push(_arraylist[value1 + plus_val])
+        }
+        else if((value/2) === (i/2) )
+        {
+      	    middle_array.push(_arraylist[value1])
+        }
+        else
+        {
+            minus_val =minus_val +1;
+            middle_array.push(_arraylist[value1 - minus_val])
+        }
+    }
+    middle_array = middle_array.sort()
+    $.ajax({
+        type:"GET",
+        url: "/post_p_oi_chart",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_oi_chart').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change In Open Interests Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Open Interests (Contracts) (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' OI',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_chg_in_chart",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_chg_in_chart').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change In Open Interests Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Change In Open Interests (Contracts) (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' CHG In OI',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_volume",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_volume').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change Volume Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Volume (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' Volume',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_iv",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_iv').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts -  Rate of Change Implied Volatility Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Implied Volatility (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' IV',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_ltp",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_ltp').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change Last Trading Price Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Last Trading Price (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: ' LTP',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_notrade",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_notrade').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change No. of Trades Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'No. of Trades (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: 'No. of Trades',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+
+    $.ajax({
+        type:"GET",
+        url: "/post_p_co_notrade",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_oi_notrade').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change Change in OI/No. of Trades Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Change in OI/No. of Trades (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: 'Change in OI/No. of Trades',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_ltp_volum",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_ltp_volume').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Puts - Rate of Change LTP * Volume Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'LTP * Volume (Rate)'
+                    },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+                },
+                tooltip: {
+                    valueSuffix: 'LTP * Volume',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+    $.ajax({
+        type:"GET",
+        url: "/post_p_volume_nt_chart",
+        data: {"ustrike_num":value},
+        success: function(data) 
+        { 
+            timeslsts = data[0]["times"];
+            datalsts = []
+            $.each(data, function (key, value) {
+                if(jQuery.inArray(key, middle_array) != -1) {
+				    item = {}
+				    item["name"] = value.strike_point;
+				    item["data"] = value.value;
+				    datalsts.push(item);
+                }
+            });
+            $('#container_P_volume_nt').highcharts({
+                chart: {
+                    type: 'line',
+                    zoomType: 'x',
+                    panning: true,
+                    panKey: 'shift'
+                },
+                time: {
+                    useUTC: false
+                },
+                title: {
+                    text: 'Calls - Rate of Change Volume / NT Analysis',
+                    x: -20
+                },
+                yAxis: {
+                    title: {
+                        text: 'Volume / NT (Rate)'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: ' Volume / NT',
+                    headerFormat: '<span style="font-size: 10px">' +
+                        'Time: <strong> {point.key:%H:%M}</strong> ' +
+                        '</span><br/>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: datalsts,
+            xAxis: {
+                title: {
+                    text: 'Time'
+                },
+                categories: timeslsts,
+                labels: {
+                    format: '{value:%H:%M}'
+                }
+            }
+            });
+		}
+	});
+}
+
+$(document).ready(function () {
+    var idleInterval = setInterval(timerIncrement2, 60000);
+    $("#putStrikes").change(function () {
+        var selectedAnswer = $(this).val().match(/\d+/)[0];
+        readymodeput(selectedAnswer);
+    });
+    $("#putStrikes").trigger("change");
+});
+function timerIncrement2() {
+    readymodeput($("#putStrikes").val().match(/\d+/)[0]);
+}
+
+</script>
+{% endblock %}
