@@ -40,7 +40,7 @@ udelying_values = []
 app = Flask(__name__)
 POOL_TIME = 60
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://feneghthythdta:5c99a5dfc7ce5f95d0c559d8091b2d644eccd3d5e1b232f5575888903dc2ba63@ec2-107-23-76-12.compute-1.amazonaws.com:5432/dbofs1cco6n2nf'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://dthbhqoalqpqzz:9e86f95f3e4c6e3affeaf01ce218c74b9383fc7ecb1fcedf9787233ebc2836b7@ec2-54-147-36-107.compute-1.amazonaws.com:5432/d3si1ses3p1blg'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
