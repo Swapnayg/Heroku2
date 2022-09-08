@@ -339,9 +339,16 @@ def closest_value(input_list, input_value):
     else:
         return ""
 
+def getData_bind():
+    today = date.today()
+    data = NseDbDailyData(str('info["Time"]'),str('info["C_OI"]'),str('c_roi'),str('info["C_CH_OI"]'),str('c_rocoi'),str('info["C_T_Volume"]'),str('c_rov'),str('info["C_IV"]'),str('c_roiv'),str('info["C_LTP"]'),str('c_roltp'),str('c_nt'),str('c_ront'),str('c_ltp_vlm'),str('c_roltp_vlm'),str('info["C_CHG"]'),str('c_coi_nt'),str('c_rocoi_nt'),str('c_ltp_coi'),str('c_roc_ltp_coi'),str('info["C_B_QTY"]'),str('info["C_B_Price"]'),str('info["C_Ask_Price"]'),str('info["C_Ask_QTY"]'),str('info["SP"]'),str('info["P_B_QTY"]'),str('info["P_B_Price"]'),str('info["P_Ask_QTY"]'),str('info["P_Ask_Price"]'),str('info["P_CHG"]'),str('info["P_LTP"]'),str('p_roltp'),str('p_nt'),str('p_ront'),str('p_ltp_vlm'),str('p_roltp_vlm'),str('info["P_IV"]'),str('p_roiv'),str('info["P_T_Volume"]'),str('p_rov'),str('info["P_CH_OI"]'),str('p_rocoi'),str('info["P_OI"]'),str('p_roi'),str('p_coi_nt'),str('p_rocoi_nt'),str('p_ltp_coi'),str('p_roc_ltp_coi'),str(today.strftime("%d-%m-%Y")),str('c_roc_vol_roc_nt'),str('roc_c_roc_vol_roc_nt'),str('p_roc_vol_roc_nt'),str('roc_p_roc_vol_roc_nt'))
+    db.session.add(data)
+    db.session.commit()
+    return str(data)
+
 @app.route('/')
 def home():
-    animal = 'dog'
+    animal = getData_bind()
     return render_template('sample.html', data=animal)
 
 if __name__ == '__main__':
